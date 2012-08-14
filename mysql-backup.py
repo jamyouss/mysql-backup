@@ -5,6 +5,8 @@ import sys
 import os
 import getopt
 import time
+import tempfile
+import shutil
 
 config = {'host': '', 'user': '', 'password': False, 'database': '', 'directory': '', 'import': False, 'export': True}
 
@@ -61,18 +63,28 @@ def exportDatabase():
 
 	args = args+"-B "+config['database']+" "
 
-	path = os.path.join(config["directory"], config['database'])
-	path = os.path.join(path, time.strftime("%d-%m-%Y"))
-	
-	if(not(os.path.exists(path))):
-		os.makedirs(path)
-
-	path = os.path.join(path, time.strftime("%H:%M:%S")+".sql")
-	args = args+" > "+path
-
+	tmpFile, tmpFilePath = tempfile.mkstemp()
+	args = args+" > "+tmpFilePath
+		
 	cmd = "mysqldump {0}".format(args)
-	os.system(cmd)
-	print "export terminé !"
+
+	if(os.system(cmd) == 0):
+		path = os.path.join(config["directory"], config['database'])
+		path = os.path.join(path, time.strftime("%d-%m-%Y"))
+	
+		if(not(os.path.exists(path))):
+			os.makedirs(path)
+
+		path = os.path.join(path, time.strftime("%H:%M:%S")+".sql")
+
+		shutil.move(tmpFilePath, path)
+
+		if os.path.isfile(path): 
+			print "Database export successful !"
+		else:
+			print "Database export failed !"			
+	else:
+		print "Database export failed !"
 
 def importDatabase():
 	pass
