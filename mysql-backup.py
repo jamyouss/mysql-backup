@@ -137,11 +137,16 @@ def loadConfig():
   		with open("/etc/mysql-backup.conf", "r") as f:
 			for line in f.readlines():
 
-				key = line.split("=")[0]	
-				value = line.split("=")[1]
+				line_config = line.rstrip("\n").split("=");
+				
+				key = line_config[0]	
+				value = line_config[1]
 
 				if(key in config and value):
-					config[key] = value	
+					if(key == "password"):
+						config[key] = bool(value)
+					else:
+						config[key] = value	
 
 	except IOError as e:
 		print "Fichier de config manquant. ({0})".format(e.strerror)	
