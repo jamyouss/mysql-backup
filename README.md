@@ -37,7 +37,7 @@ database2' --directory=/opt/mysql/backup
 
 And if we list the `/opt/mysql/backup` directory:
 
-
+![alt tag](https://raw.githubusercontent.com/razmo/mysql-backup/master/screen.png)
 
 License
 ------
