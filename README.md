@@ -21,8 +21,7 @@ For a better security, the script use the `--login-path` option of `mysqldump` i
 Let's create a user named `my_user` 
 
 ```
-mysql_config_editor set --login-path=dev --host=localhost 
---user=my_user --password
+mysql_config_editor set --login-path=dev --host=localhost --user=my_user --password
 ```
 
 2. Create a backup
@@ -31,8 +30,7 @@ mysql_config_editor set --login-path=dev --host=localhost
 Let's create a backup of databases named `database1` and `database2`.  
 
 ```
-python mysql-backup.py --login-path=dev --databases='database1
-database2' --directory=/opt/mysql/backup
+python mysql-backup.py --login-path=dev --databases='database1 database2' --directory=/opt/mysql/backup
 ```
 
 And if we list the `/opt/mysql/backup` directory:
