@@ -7,8 +7,10 @@ import getopt
 import time
 import tempfile
 import shutil
+from datetime import date
+from datetime import datetime
 
-config = {'login-path': '', 'databases': '', 'directory': ''}
+config = {'login-path': '', 'databases': '', 'directory': '', 'max-days': 15}
 
 def usage():
 	print "Dumping structure and contents of MySQL databases."
@@ -17,27 +19,15 @@ def usage():
   	print "-v, --version          : Output version information and exit."
   	print "-l, --login-path=name  : Login path name."
   	print "-D, --databases=name   : databases name to dump."
-  	print "-d, --directory=name   : Backup directory."
+  	print "-d, --directory=path   : Backup directory."
+  	print "-m, --max-days=days    : Maximum days of backup (default 15 days)."
 
 def version():
 	print "Mysql Backup v1"
 
-def listAllBackup():
-	for f in os.listdir(config["directory"]):
-		listBackup(f)
-
-def listBackup(name):
-	path = os.path.join(config["directory"], name)
-	print name
-	for d in os.listdir(path):
-		print "  "+d
-		subpath = os.path.join(path, d)
-		for h in os.listdir(subpath):
-			print "    "+h
-
 def export():
-
 	databases = config['databases'].split()
+	cleanup = False
 
 	if(len(databases) == 0):
 		print "You have to specifie which databases you want to export"
@@ -69,14 +59,32 @@ def export():
 
 			if os.path.isfile(path):
 				print "Export successful for database '"+database+"'"
+				cleanup = True
 			else:
 				print "Export failed for database '"+database+"'"
 		else:
 			print "Export failed for database '"+database+"'"
 
+	if cleanup == True:
+		print "Cleanup"
+		cleanup()
+
+def cleanup():
+	today = date.today()
+	min_date = today.replace(day= today.day-config["max-days"])
+
+	for database in os.listdir(config["directory"]):
+		path = os.path.join(config["directory"], database)
+
+		for day in os.listdir(path):
+			full_date = datetime.strptime(day, "%d-%m-%Y").date()
+
+			if full_date < min_date:
+				shutil.rmtree(os.path.join(path, day))
+
 def options():
 	try:
-		options, args = getopt.getopt(sys.argv[1:], "vl:B:d:", ["version", "login-path=", "databases=", "directory=", "help"])
+		options, args = getopt.getopt(sys.argv[1:], "vl:B:d:m:", ["version", "login-path=", "databases=", "directory=", "max-days=", "help"])
 	except getopt.GetoptError:
 		usage()
 		sys.exit(2)
@@ -94,6 +102,8 @@ def options():
 				config["databases"] = value
 			elif(key in ['-d', '--directory']):
 				config["directory"] = value
+			elif(key in ['-m', '--max-days']):
+				config["max-days"] = int(value)
 
 options()
 export()
