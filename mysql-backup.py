@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-# -*-coding:Utf-8 -*-
 
 import sys
 import os
@@ -23,11 +22,10 @@ def usage():
   	print "-m, --max-days=days    : Maximum days of backup (default 15 days)."
 
 def version():
-	print "Mysql Backup v1"
+	print "Mysql Backup v2"
 
 def export():
 	databases = config['databases'].split()
-	cleanup = False
 
 	if(len(databases) == 0):
 		print "You have to specifie which databases you want to export"
@@ -58,29 +56,24 @@ def export():
 			shutil.move(tmpFilePath, path)
 
 			if os.path.isfile(path):
+				cleanup(database)
 				print "Export successful for database '"+database+"'"
-				cleanup = True
 			else:
 				print "Export failed for database '"+database+"'"
 		else:
 			print "Export failed for database '"+database+"'"
 
-	if cleanup == True:
-		print "Cleanup"
-		cleanup()
-
-def cleanup():
+def cleanup(database):
 	today = date.today()
 	min_date = today.replace(day= today.day-config["max-days"])
 
-	for database in os.listdir(config["directory"]):
-		path = os.path.join(config["directory"], database)
+	path = os.path.join(config["directory"], database)
 
-		for day in os.listdir(path):
-			full_date = datetime.strptime(day, "%d-%m-%Y").date()
+	for day in os.listdir(path):
+		full_date = datetime.strptime(day, "%d-%m-%Y").date()
 
-			if full_date < min_date:
-				shutil.rmtree(os.path.join(path, day))
+		if full_date < min_date:
+			shutil.rmtree(os.path.join(path, day))
 
 def options():
 	try:
