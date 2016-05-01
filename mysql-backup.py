@@ -6,8 +6,7 @@ import getopt
 import time
 import tempfile
 import shutil
-from datetime import date
-from datetime import datetime
+from datetime import date, datetime, timedelta
 
 config = {'login-path': '', 'databases': '', 'directory': '', 'max-days': 15}
 
@@ -64,8 +63,7 @@ def export():
 			print "Export failed for database '"+database+"'"
 
 def cleanup(database):
-	today = date.today()
-	min_date = today.replace(day= today.day-config["max-days"])
+	min_date = date.today() - timedelta(days=config["max-days"])
 
 	path = os.path.join(config["directory"], database)
 
